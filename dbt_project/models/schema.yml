@@ -1,0 +1,165 @@
+version: 2
+models:
+  - name: stg_llm_runs
+    columns:
+      - name: event_id
+        data_tests:
+          - not_null
+          - unique
+      - name: occurred_at
+        data_tests:
+          - not_null
+      - name: tenant_id
+        data_tests:
+          - not_null
+      - name: workflow
+        data_tests:
+          - not_null
+      - name: model_id
+        data_tests:
+          - not_null
+      - name: data_kind
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["synthetic","observed","live"]
+      - name: status
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["ok","error","rejected","pending"]
+      - name: arm
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["all_cloud","hybrid"]
+  - name: stg_model_pricing
+    columns:
+      - name: observation_id
+        data_tests:
+          - not_null
+          - unique
+      - name: model_id
+        data_tests:
+          - not_null
+      - name: price_source
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["openrouter","demo"]
+      - name: input_usd
+        data_tests:
+          - not_null
+      - name: output_usd
+        data_tests:
+          - not_null
+      - name: observed_at
+        data_tests:
+          - not_null
+  - name: stg_eval_scores
+    columns:
+      - name: score_id
+        data_tests:
+          - not_null
+          - unique
+      - name: score_pct
+        data_tests:
+          - not_null
+      - name: benchmark
+        data_tests:
+          - not_null
+  - name: dim_models
+    columns:
+      - name: model_id
+        data_tests:
+          - not_null
+          - unique
+  - name: dim_tenants
+    columns:
+      - name: tenant_id
+        data_tests:
+          - not_null
+          - unique
+      - name: first_seen_date
+        data_tests:
+          - not_null
+      - name: last_seen_date
+        data_tests:
+          - not_null
+  - name: dim_models_scd2
+    columns:
+      - name: price_version_id
+        data_tests:
+          - not_null
+          - unique
+      - name: valid_from
+        data_tests:
+          - not_null
+      - name: is_current
+        data_tests:
+          - not_null
+  - name: fct_llm_runs
+    columns:
+      - name: event_id
+        data_tests:
+          - not_null
+          - unique
+      - name: tenant_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_tenants')
+                field: tenant_id
+      - name: model_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_models')
+                field: model_id
+      - name: price_version_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_models_scd2')
+                field: price_version_id
+      - name: cost_basis
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["simulation","reported","catalog_estimate","unknown"]
+  - name: mart_finops_daily
+    columns:
+      - name: event_date
+        data_tests:
+          - not_null
+      - name: runs
+        data_tests:
+          - not_null
+      - name: data_kind
+        data_tests:
+          - not_null
+  - name: mart_ab_routing
+    columns:
+      - name: experiment_id
+        data_tests:
+          - not_null
+      - name: arm
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["all_cloud","hybrid"]
+      - name: assigned
+        data_tests:
+          - not_null
+  - name: mart_model_benchmarks
+    columns:
+      - name: score_id
+        data_tests:
+          - not_null
+          - unique
+      - name: score_pct
+        data_tests:
+          - not_null
