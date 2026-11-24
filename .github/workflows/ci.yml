@@ -2,14 +2,21 @@ name: Warehouse checks
 
 on:
   push:
+    branches: [main]
   pull_request:
 
 permissions:
   contents: read
 
+concurrency:
+  group: warehouse-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   quality:
+    name: Python, SQL, and PostgreSQL 16
     runs-on: ubuntu-latest
+    timeout-minutes: 12
     services:
       postgres:
         image: postgres:16-alpine
@@ -23,18 +30,27 @@ jobs:
           --health-cmd "pg_isready -U finops -d finops"
           --health-interval 3s --health-timeout 5s --health-retries 20
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
-      - uses: astral-sh/setup-uv@v6
-      - run: uv sync --locked --group analysis
-      - run: uv run --locked --no-sync ruff check .
-      - run: uv run --locked --no-sync sqlfluff lint sql dbt_project/models dbt_project/tests
-      - run: uv run --locked --no-sync python -m ingestion.ingest_verstak_logs demo --end 2026-11-24 --per-day 30
-      - run: uv run --locked --no-sync python -m ingestion.warehouse ingest
-      - run: uv run --locked --no-sync dbt build --project-dir dbt_project --profiles-dir dbt_project
-      - run: uv run --locked --no-sync pytest -q
+      - uses: astral-sh/setup-uv@v10.4.0
+      - name: Install locked dependencies
+        run: uv sync --locked --group analysis
+      - name: Lint Python and SQL
+        run: |
+          uv run --locked --no-sync ruff check .
+          uv run --locked --no-sync sqlfluff lint sql dbt_project/models dbt_project/tests
+      - name: Generate and load deterministic fixtures
+        run: |
+          uv run --locked --no-sync python -m ingestion.ingest_verstak_logs demo --end 2026-11-24 --per-day 30
+          uv run --locked --no-sync python -m ingestion.warehouse ingest
+      - name: Build and test dbt models
+        run: uv run --locked --no-sync dbt build --project-dir dbt_project --profiles-dir dbt_project
+      - name: Run Python and PostgreSQL integration tests
+        run: uv run --locked --no-sync pytest -q
         env:
           FINOPS_TEST_POSTGRES: "1"
           OMP_NUM_THREADS: "2"

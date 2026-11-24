@@ -9,6 +9,8 @@
 
 ## Check pipeline state
 
+Start the Airflow web server and scheduler with `docker compose up -d --wait airflow-web airflow-scheduler`. Sign in as `admin` using the local default password `admin`. Unpause `llm_finops_daily` to enable the daily schedule.
+
 ```powershell
 docker compose ps
 docker compose exec -T airflow-scheduler airflow dags list-runs -d llm_finops_daily -o json

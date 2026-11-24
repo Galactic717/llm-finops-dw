@@ -1,10 +1,49 @@
 # LLM FinOps Warehouse
 
-[Українська](README.uk.md)
+**An open-data lakehouse for LLM costs, inference latency, and routing experiments.**
 
-Investigate LLM spend, request latency, model pricing changes, and routing experiments. The warehouse combines observed Verstak and VeriFine telemetry, live requests to an existing llama.cpp model, a 90-day randomized simulation, and public model catalogs.
+[![Warehouse checks](https://github.com/Galactic717/llm-finops-dw/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Galactic717/llm-finops-dw/actions/workflows/ci.yml)
 
-![Metabase overview](bi/screenshots/metabase-routing.jpg)
+[Українська](README.uk.md) · [Quickstart](#quickstart) · [Measured results](#measured-results) · [SQL showcase](sql/queries/) · [Downloads](https://github.com/Galactic717/llm-finops-dw/releases/latest)
+
+Find which workflows drive inference spend, trace each request to the tariff effective at the time, and measure the trade-offs of hybrid routing. The warehouse combines public model catalogs, a randomized 90-day simulation, and observed inference telemetry. [Verstak](https://github.com/Galactic717/verstak-agent) · [VeriFine](https://github.com/Galactic717/verifine-slm)
+
+| Warehouse validation | PostgreSQL benchmark | Routing simulation |
+| --- | --- | --- |
+| **22,010** reconciled facts | **1,122 ms → 2.11 ms** on one million rows | **72.67%** lower mean modeled cost |
+| [Source counts](docs/results/delta.json) | [Query, plans, and test conditions](sql/optimization_report.md) | [Quality, SRM, and confidence intervals](docs/results/routing-demo.json) |
+
+![Metabase dashboard showing simulated spend, requests, p95 latency, and routing trade-offs](bi/screenshots/metabase-routing.jpg)
+
+## Quickstart
+
+Install Docker with Compose and [uv](https://docs.astral.sh/uv/). Clone and start the reference experiment from PowerShell.
+
+```powershell
+git clone https://github.com/Galactic717/llm-finops-dw.git
+cd llm-finops-dw
+./scripts/demo.ps1 -Offline
+```
+
+The script builds 90 days of deterministic synthetic data and prints the local Metabase link. Drop `-Offline` to fetch market data and benchmark scores. Add `-WithAirflow` to start the scheduler. Docker images and Python packages are downloaded on first use. [BI guide](bi/README.md)
+
+<details>
+<summary>Run the warehouse from Bash</summary>
+
+```bash
+git clone https://github.com/Galactic717/llm-finops-dw.git
+cd llm-finops-dw
+docker compose up -d --wait warehouse metabase
+uv sync --locked --group analysis
+uv run --locked --no-sync python -m ingestion.ingest_verstak_logs demo
+uv run --locked --no-sync python -m ingestion.warehouse ingest
+uv run --locked --no-sync dbt build --project-dir dbt_project --profiles-dir dbt_project
+uv run --locked --no-sync python -m bi.metabase --public-demo
+```
+
+</details>
+
+## Architecture
 
 ```mermaid
 flowchart LR
@@ -21,29 +60,11 @@ flowchart LR
     S --> M["Metabase · Power BI · Excel"]
 ```
 
-## Run locally
+Bronze preserves source observations. Silver validates and deduplicates telemetry, derives tariff intervals, and prices requests using the rate effective at event time. Gold keeps the event's cost basis and provenance available to reporting. [Data contract](docs/data-contract.md)
 
-Requires Docker with Compose, Python 3.11–3.13 through [uv](https://docs.astral.sh/uv/), and PowerShell for the bootstrap script. Run from the repository root.
+<details>
+<summary>Add live and historical telemetry</summary>
 
-```powershell
-./scripts/demo.ps1
-```
-
-Add `-Offline` if the public data endpoints are unavailable, or `-WithAirflow` to start orchestration. Docker image and Python package downloads are needed the first time. The script prints the interactive Metabase URL with no sign-in for the synthetic report. The signed-in telemetry coverage dashboard is also created. See the [BI guide](bi/README.md) for credentials and export paths.
-
-For Bash or selective execution, run the pipeline steps directly.
-
-```bash
-docker compose up -d --wait warehouse metabase
-uv sync --locked --group analysis
-uv run python -m ingestion.ingest_verstak_logs demo --end 2026-11-24
-uv run python -m ingestion.fetch_open_models
-uv run python -m ingestion.warehouse ingest
-uv run dbt build --project-dir dbt_project --profiles-dir dbt_project
-uv run python -m bi.metabase --public-demo
-```
-
-### Add live and historical telemetry
 
 Run the launcher in a separate terminal. It starts the existing VeriFine Qwen GGUF on loopback with a 2,048-token context. Pass `-ModelPath` to use another existing model, `-LlamaRoot` for an alternate installation directory, or `-GpuLayers 0` for CPU. You can skip the launcher if an appropriate llama.cpp endpoint is already running.
 
@@ -65,19 +86,9 @@ uv run dbt build --project-dir dbt_project --profiles-dir dbt_project
 
 The exporter expects a running local Verstak PostgreSQL container. Use `-Container` when its name differs. The report importer accepts VeriFine request or prediction reports and an optional `--at` timestamp. See the [data contract](docs/data-contract.md).
 
-### Orchestrate, analyze, and export
+</details>
 
-| Deliverable | Entry point |
-| --- | --- |
-| Airflow | `docker compose up -d --wait airflow-web airflow-scheduler`. Open [Airflow](http://127.0.0.1:8086), sign in with the local development credentials `admin` / `admin`, and unpause `llm_finops_daily` to enable the daily schedule. |
-| Advanced SQL | [16 runnable SQL analyses](sql/queries/) and [measured execution plans](sql/optimization_report.md) |
-| Databricks / Delta | [Three notebooks and execution guide](databricks/README.md) |
-| Experiment and ML | [Jupyter notebook](notebooks/ab_routing_and_ml.ipynb) or `uv run --group analysis python -m analysis.routing` |
-| Metabase and Power BI | [BI guide](bi/README.md), [Power BI dashboard](bi/llm_finops_dashboard.pbix), [editable Power BI project](bi/powerbi/LLM%20FinOps.pbip), and [DAX](bi/dax_measures.md) |
-| CSV and Excel | `uv run --group analysis python -m bi.export` creates exports under `output/bi`. |
-| GitHub Actions | [CI workflow](.github/workflows/ci.yml) runs Ruff, SQLFluff, dbt and pytest with PostgreSQL 16 and deterministic inputs. |
-
-## Measured locally
+## Measured results
 
 | Check | Observed result |
 | --- | --- |
@@ -91,6 +102,17 @@ The exporter expects a running local Verstak PostgreSQL container. Use `-Contain
 | p95 forecasting | 302.44 ms MAE versus 297.64 ms for the last-observation baseline over the chronological holdout. The baseline performed better. |
 
 The routing result belongs to the simulated traffic and price assumptions. The live inference smoke test and imported telemetry document real measurements for their respective sources. [Routing results](docs/results/routing-demo.json) · [Delta reconciliation](docs/results/delta.json)
+
+## Explore the project
+
+| Area | Start here |
+| --- | --- |
+| SQL and warehouse | [16 SQL analyses](sql/queries/) · [EXPLAIN plans](sql/plans/) · [dbt marts](dbt_project/models/marts/) |
+| A/B and p95 forecast | [Jupyter notebook](notebooks/ab_routing_and_ml.ipynb) · [Executed report download](https://github.com/Galactic717/llm-finops-dw/releases/latest) |
+| BI and exports | [Metabase and Power BI screenshots](bi/README.md) · [Power BI file](bi/llm_finops_dashboard.pbix) · [Editable Power BI project](bi/powerbi/LLM%20FinOps.pbip) · [DAX](bi/dax_measures.md) |
+| Orchestration | [Airflow DAG](airflow/dags/llm_finops_daily.py) · [Local operations](docs/runbook.md) |
+| PySpark and Databricks | [Bronze, Silver, and Gold notebooks](databricks/README.md) · [Local execution evidence](docs/results/) |
+| Continuous integration | [GitHub Actions runs](https://github.com/Galactic717/llm-finops-dw/actions/workflows/ci.yml) · [CI configuration](.github/workflows/ci.yml) |
 
 ## Sources and deployment scope
 

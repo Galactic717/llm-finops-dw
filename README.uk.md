@@ -1,8 +1,17 @@
 # LLM FinOps Warehouse
 
-[English](README.md)
+**Lakehouse для аналізу витрат, латентності й експериментів із роутингом LLM.**
+
+[![Перевірки репозиторію](https://github.com/Galactic717/llm-finops-dw/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Galactic717/llm-finops-dw/actions/workflows/ci.yml)
+
+[English](README.md) · [Запуск](#запуск) · [Результати](#результати-перевірки) · [SQL-запити](sql/queries/) · [Завантаження звітів](https://github.com/Galactic717/llm-finops-dw/releases/latest)
 
 Проєкт аналізує витрати на LLM, час відповіді, зміни тарифів та експерименти з роутингом. Він поєднує телеметрію Verstak і VeriFine, запити до наявної моделі через llama.cpp, 90 днів синтетичного трафіку та відкриті каталоги моделей.
+
+| Перевірено у сховищі | Бенчмарк PostgreSQL | Симуляція роутингу |
+| --- | --- | --- |
+| **22 010** звірених фактів | **1 122 мс → 2,11 мс** на мільйоні рядків | **72,67%** економії за моделлю витрат |
+| [Звірка PostgreSQL і Delta](docs/results/delta.json) | [Методика та плани запиту](sql/optimization_report.md) | [Якість, SRM та інтервали](docs/results/routing-demo.json) |
 
 ![Дашборд Metabase](bi/screenshots/metabase-routing.jpg)
 
@@ -11,7 +20,9 @@
 Потрібні Docker з Compose, [uv](https://docs.astral.sh/uv/) та PowerShell. Запустіть із кореня репозиторію.
 
 ```powershell
-./scripts/demo.ps1
+git clone https://github.com/Galactic717/llm-finops-dw.git
+cd llm-finops-dw
+./scripts/demo.ps1 -Offline
 ```
 
 Параметр `-Offline` пропускає запити до відкритих API. Параметр `-WithAirflow` також запускає Airflow. Сценарій друкує локальне посилання на інтерактивний дашборд синтетичного експерименту, доступний без входу. У [посібнику BI](bi/README.md) є інструкції до звіту з телеметрією та експорту в Excel і Power BI.
