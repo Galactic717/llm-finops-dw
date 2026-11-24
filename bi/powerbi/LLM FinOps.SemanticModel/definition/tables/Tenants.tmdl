@@ -1,0 +1,20 @@
+table Tenants
+	lineageTag: 3dc40bb9-2bc5-4d39-975a-d62aa981b894
+
+	column Tenant
+		dataType: string
+		lineageTag: e1c2eb31-c5b9-40ee-8896-70d0b3869ac5
+		summarizeBy: none
+		sourceColumn: Tenant
+
+	partition Tenants = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(Binary.Decompress(Binary.FromText(Text.Combine({
+				        "NY45DoAwEAP7/AVpbc78gw8gkTKh4f+iYLYa2daO9mzjGm+5W3+m2KBh/SmRD7jQz+Tcd/q8Z3fQw1jp00MWfnMnduMXfuMX/6qWDw=="
+				    }), BinaryEncoding.Base64), Compression.Deflate), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    Typed = Table.TransformColumnTypes(Headers, {{"Tenant", type text}}, "en-US")
+				in
+				    Typed

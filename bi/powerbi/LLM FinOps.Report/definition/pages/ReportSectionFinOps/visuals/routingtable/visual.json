@@ -1,0 +1,195 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.15.0/schema.json",
+  "name": "routingtable",
+  "position": {
+    "x": 24,
+    "y": 490,
+    "z": 10000,
+    "height": 194,
+    "width": 1231,
+    "tabOrder": 10000
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Requests"
+                    }
+                  },
+                  "Property": "Policy"
+                }
+              },
+              "queryRef": "Requests.Policy",
+              "nativeQueryRef": "Policy",
+              "active": true
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Requests"
+                    }
+                  },
+                  "Property": "Requests"
+                }
+              },
+              "queryRef": "Requests.Requests",
+              "nativeQueryRef": "Requests",
+              "active": true
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Requests"
+                    }
+                  },
+                  "Property": "Spend USD"
+                }
+              },
+              "queryRef": "Requests.Spend USD",
+              "nativeQueryRef": "Spend USD",
+              "active": true
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Requests"
+                    }
+                  },
+                  "Property": "Cost per 1k"
+                }
+              },
+              "queryRef": "Requests.Cost per 1k",
+              "nativeQueryRef": "Cost per 1k",
+              "active": true
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Requests"
+                    }
+                  },
+                  "Property": "p95 latency"
+                }
+              },
+              "queryRef": "Requests.p95 latency",
+              "nativeQueryRef": "p95 latency",
+              "active": true
+            }
+          ]
+        }
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Routing policies'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "387703d7fdbd596baa33",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Requests"
+              }
+            },
+            "Property": "Policy"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "73367f1e373868cd39a2",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Requests"
+              }
+            },
+            "Property": "Requests"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "372f4e6b82ab575d143c",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Requests"
+              }
+            },
+            "Property": "Spend USD"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "2a123608a072365bc47f",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Requests"
+              }
+            },
+            "Property": "Cost per 1k"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "a6411ff058ffb1a7f1a7",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Requests"
+              }
+            },
+            "Property": "p95 latency"
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
+  }
+}

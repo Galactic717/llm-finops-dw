@@ -1,0 +1,20 @@
+table Models
+	lineageTag: 802d63df-7680-42fb-8025-a7de4c216492
+
+	column Model
+		dataType: string
+		lineageTag: fd248881-40a1-4c10-8f67-8435386654c6
+		summarizeBy: none
+		sourceColumn: Model
+
+	partition Models = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(Binary.Decompress(Binary.FromText(Text.Combine({
+				        "881PSc3hSknNzddPzskvTdFNK8rPK8lMLYKIlaUWZaZl5qXqFufkcgEA"
+				    }), BinaryEncoding.Base64), Compression.Deflate), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    Typed = Table.TransformColumnTypes(Headers, {{"Model", type text}}, "en-US")
+				in
+				    Typed
