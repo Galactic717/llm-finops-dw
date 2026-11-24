@@ -1,0 +1,52 @@
+{
+  "postgres_version": "16.16",
+  "rows": 1000000,
+  "repeats": 5,
+  "result_sha256": "8d95806aecb99c6630caa043c447d375f67d26f256c20bdfa70d55f2971f922c",
+  "variants": {
+    "01_heap": {
+      "samples_ms": [
+        1112.53,
+        1127.92,
+        1127.444,
+        1121.521,
+        1112.647
+      ],
+      "median_ms": 1121.521,
+      "speedup_vs_heap": 1.0
+    },
+    "02_brin": {
+      "samples_ms": [
+        71.978,
+        73.77,
+        72.165,
+        71.255,
+        71.739
+      ],
+      "median_ms": 71.978,
+      "speedup_vs_heap": 15.581441551585208
+    },
+    "03_composite": {
+      "samples_ms": [
+        2.216,
+        2.192,
+        2.11,
+        1.863,
+        1.753
+      ],
+      "median_ms": 2.11,
+      "speedup_vs_heap": 531.5265402843602
+    },
+    "04_partitioned": {
+      "samples_ms": [
+        3.342,
+        2.801,
+        2.698,
+        2.374,
+        2.851
+      ],
+      "median_ms": 2.801,
+      "speedup_vs_heap": 400.40021420921096
+    }
+  }
+}
