@@ -1,0 +1,13 @@
+finops:
+  target: local
+  outputs:
+    local:
+      type: postgres
+      host: "{{ env_var('FINOPS_DB_HOST', '127.0.0.1') }}"
+      port: "{{ env_var('FINOPS_DB_PORT', '55436') | int }}"
+      dbname: "{{ env_var('FINOPS_DB_NAME', 'finops') }}"
+      user: "{{ env_var('FINOPS_DB_USER', 'finops') }}"
+      password: "{{ env_var('FINOPS_DB_PASSWORD', 'finops') }}"
+      schema: gold
+      threads: 4
+      keepalives_idle: 30
