@@ -1,0 +1,40 @@
+name: Warehouse checks
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: finops
+          POSTGRES_PASSWORD: finops
+          POSTGRES_DB: finops
+        ports:
+          - 55436:5432
+        options: >-
+          --health-cmd "pg_isready -U finops -d finops"
+          --health-interval 3s --health-timeout 5s --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --locked --group analysis
+      - run: uv run --locked --no-sync ruff check .
+      - run: uv run --locked --no-sync sqlfluff lint sql dbt_project/models dbt_project/tests
+      - run: uv run --locked --no-sync python -m ingestion.ingest_verstak_logs demo --end 2026-11-24 --per-day 30
+      - run: uv run --locked --no-sync python -m ingestion.warehouse ingest
+      - run: uv run --locked --no-sync dbt build --project-dir dbt_project --profiles-dir dbt_project
+      - run: uv run --locked --no-sync pytest -q
+        env:
+          FINOPS_TEST_POSTGRES: "1"
+          OMP_NUM_THREADS: "2"
