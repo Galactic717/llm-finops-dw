@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "LLM FinOps"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "820ff269-a2b3-4619-8876-d4e7dc610f01"
+  }
+}

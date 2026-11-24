@@ -1,0 +1,21 @@
+table Calendar
+	lineageTag: bdd2f285-2eed-4258-963e-fd5e55cf9231
+
+	column Date
+		dataType: dateTime
+		formatString: yyyy-MM-dd
+		lineageTag: 19f0604d-fd28-4372-baa6-9ac4225fcce0
+		summarizeBy: none
+		sourceColumn: Date
+
+	partition Calendar = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(Binary.Decompress(Binary.FromText(Text.Combine({
+				        "TdIxasMAFETBPncR6H3ZstTnIilyA9+fYIg17rYbeOz3z/P3a9bZl/VY5mEe5nnNbTX7n+eyfswxN/Nm3s3dfJiHeV6z1aRFixYtWrRo0aINbWhDG9rQhja0oQ1taO+orVfJ1xxzM2/m3dzNh3mY5zWjRYsWLVq0aNGiRRva0IY2tKENbWhDG9rQPkq+71miJmqiJmqiJmqiJmqiJmqiJmqiJmqiJmqiJmqiJmqiJmqi9or6Bw=="
+				    }), BinaryEncoding.Base64), Compression.Deflate), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    Typed = Table.TransformColumnTypes(Headers, {{"Date", type date}}, "en-US")
+				in
+				    Typed

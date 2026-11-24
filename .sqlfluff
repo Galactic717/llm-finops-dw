@@ -1,0 +1,11 @@
+[sqlfluff]
+dialect = postgres
+templater = jinja
+rules = core
+exclude_rules = LT05, ST06, AM04
+
+[sqlfluff:templater:jinja]
+apply_dbt_builtins = True
+
+[sqlfluff:templater:jinja:context]
+relation = benchmark_heap

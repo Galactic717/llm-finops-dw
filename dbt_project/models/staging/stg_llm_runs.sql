@@ -1,0 +1,21 @@
+select
+    payload ->> 'event_id' as event_id,
+    cast(payload ->> 'occurred_at' as timestamptz) as occurred_at,
+    cast((cast(payload ->> 'occurred_at' as timestamptz) at time zone 'UTC') as date) as event_date,
+    payload ->> 'tenant_id' as tenant_id,
+    payload ->> 'workflow' as workflow,
+    payload ->> 'model_id' as model_id,
+    payload ->> 'data_kind' as data_kind,
+    payload ->> 'source' as source,
+    payload ->> 'status' as status,
+    cast(payload ->> 'input_tokens' as bigint) as input_tokens,
+    cast(payload ->> 'output_tokens' as bigint) as output_tokens,
+    cast(payload ->> 'latency_ms' as double precision) as latency_ms,
+    cast(payload ->> 'ttft_ms' as double precision) as ttft_ms,
+    cast(payload ->> 'charged_usd' as numeric) as charged_usd,
+    payload ->> 'experiment_id' as experiment_id,
+    payload ->> 'arm' as arm,
+    payload ->> 'ground_truth' as ground_truth,
+    payload ->> 'prediction' as prediction,
+    cast(payload ->> 'fallback' as boolean) as fallback
+from {{ source('bronze', 'events') }}

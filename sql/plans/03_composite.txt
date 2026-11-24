@@ -1,0 +1,20 @@
+Sort  (cost=2913.26..2913.33 rows=30 width=68) (actual time=1.927..1.928 rows=30 loops=1)
+  Sort Key: (('2026-04-15'::date + i.i))
+  Sort Method: quicksort  Memory: 26kB
+  Buffers: local hit=4826
+  ->  Nested Loop  (cost=97.05..2912.52 rows=30 width=68) (actual time=0.104..1.915 rows=30 loops=1)
+        Buffers: local hit=4826
+        ->  Function Scan on generate_series i  (cost=0.00..0.30 rows=30 width=4) (actual time=0.008..0.010 rows=30 loops=1)
+        ->  Aggregate  (cost=97.04..97.06 rows=1 width=64) (actual time=0.061..0.061 rows=1 loops=30)
+              Buffers: local hit=4826
+              ->  Bitmap Heap Scan on benchmark_heap  (cost=4.74..96.92 rows=24 width=14) (actual time=0.014..0.039 rows=161 loops=30)
+                    Recheck Cond: ((tenant_id = 25) AND (event_date >= (('2026-04-15'::date + i.i) - 6)) AND (event_date <= ('2026-04-15'::date + i.i)))
+                    Heap Blocks: exact=4712
+                    Buffers: local hit=4826
+                    ->  Bitmap Index Scan on benchmark_heap_tenant_id_event_date_cost_usd_latency_ms_idx  (cost=0.00..4.73 rows=24 width=0) (actual time=0.006..0.006 rows=161 loops=30)
+                          Index Cond: ((tenant_id = 25) AND (event_date >= (('2026-04-15'::date + i.i) - 6)) AND (event_date <= ('2026-04-15'::date + i.i)))
+                          Buffers: local hit=114
+Planning:
+  Buffers: local hit=1
+Planning Time: 0.084 ms
+Execution Time: 1.970 ms

@@ -1,0 +1,45 @@
+Sort  (cost=2898.68..2898.75 rows=30 width=68) (actual time=2.465..2.467 rows=30 loops=1)
+  Sort Key: (('2026-04-15'::date + i.i))
+  Sort Method: quicksort  Memory: 26kB
+  Buffers: local hit=4845
+  ->  Nested Loop  (cost=96.56..2897.94 rows=30 width=68) (actual time=0.100..2.449 rows=30 loops=1)
+        Buffers: local hit=4845
+        ->  Function Scan on generate_series i  (cost=0.00..0.30 rows=30 width=4) (actual time=0.005..0.007 rows=30 loops=1)
+        ->  Aggregate  (cost=96.56..96.58 rows=1 width=64) (actual time=0.079..0.079 rows=1 loops=30)
+              Buffers: local hit=4845
+              ->  Append  (cost=4.47..96.46 rows=18 width=14) (actual time=0.015..0.056 rows=161 loops=30)
+                    Buffers: local hit=4845
+                    ->  Bitmap Heap Scan on benchmark_m1 benchmark_partitioned_1  (cost=4.47..16.07 rows=3 width=14) (never executed)
+                          Recheck Cond: ((tenant_id = 25) AND (event_date >= (('2026-04-15'::date + i.i) - 6)) AND (event_date <= ('2026-04-15'::date + i.i)))
+                          ->  Bitmap Index Scan on benchmark_m1_tenant_id_event_date_cost_usd_latency_ms_idx  (cost=0.00..4.46 rows=3 width=0) (never executed)
+                                Index Cond: ((tenant_id = 25) AND (event_date >= (('2026-04-15'::date + i.i) - 6)) AND (event_date <= ('2026-04-15'::date + i.i)))
+                    ->  Bitmap Heap Scan on benchmark_m2 benchmark_partitioned_2  (cost=4.47..16.05 rows=3 width=14) (never executed)
+                          Recheck Cond: ((tenant_id = 25) AND (event_date >= (('2026-04-15'::date + i.i) - 6)) AND (event_date <= ('2026-04-15'::date + i.i)))
+                          ->  Bitmap Index Scan on benchmark_m2_tenant_id_event_date_cost_usd_latency_ms_idx  (cost=0.00..4.46 rows=3 width=0) (never executed)
+                                Index Cond: ((tenant_id = 25) AND (event_date >= (('2026-04-15'::date + i.i) - 6)) AND (event_date <= ('2026-04-15'::date + i.i)))
+                    ->  Bitmap Heap Scan on benchmark_m3 benchmark_partitioned_3  (cost=4.47..16.07 rows=3 width=14) (never executed)
+                          Recheck Cond: ((tenant_id = 25) AND (event_date >= (('2026-04-15'::date + i.i) - 6)) AND (event_date <= ('2026-04-15'::date + i.i)))
+                          ->  Bitmap Index Scan on benchmark_m3_tenant_id_event_date_cost_usd_latency_ms_idx  (cost=0.00..4.46 rows=3 width=0) (never executed)
+                                Index Cond: ((tenant_id = 25) AND (event_date >= (('2026-04-15'::date + i.i) - 6)) AND (event_date <= ('2026-04-15'::date + i.i)))
+                    ->  Bitmap Heap Scan on benchmark_m4 benchmark_partitioned_4  (cost=4.47..16.06 rows=3 width=14) (actual time=0.012..0.036 rows=139 loops=22)
+                          Recheck Cond: ((tenant_id = 25) AND (event_date >= (('2026-04-15'::date + i.i) - 6)) AND (event_date <= ('2026-04-15'::date + i.i)))
+                          Heap Blocks: exact=2991
+                          Buffers: local hit=3069
+                          ->  Bitmap Index Scan on benchmark_m4_tenant_id_event_date_cost_usd_latency_ms_idx  (cost=0.00..4.46 rows=3 width=0) (actual time=0.005..0.005 rows=139 loops=22)
+                                Index Cond: ((tenant_id = 25) AND (event_date >= (('2026-04-15'::date + i.i) - 6)) AND (event_date <= ('2026-04-15'::date + i.i)))
+                                Buffers: local hit=78
+                    ->  Bitmap Heap Scan on benchmark_m5 benchmark_partitioned_5  (cost=4.47..16.07 rows=3 width=14) (actual time=0.014..0.046 rows=126 loops=14)
+                          Recheck Cond: ((tenant_id = 25) AND (event_date >= (('2026-04-15'::date + i.i) - 6)) AND (event_date <= ('2026-04-15'::date + i.i)))
+                          Heap Blocks: exact=1727
+                          Buffers: local hit=1776
+                          ->  Bitmap Index Scan on benchmark_m5_tenant_id_event_date_cost_usd_latency_ms_idx  (cost=0.00..4.46 rows=3 width=0) (actual time=0.007..0.007 rows=126 loops=14)
+                                Index Cond: ((tenant_id = 25) AND (event_date >= (('2026-04-15'::date + i.i) - 6)) AND (event_date <= ('2026-04-15'::date + i.i)))
+                                Buffers: local hit=49
+                    ->  Bitmap Heap Scan on benchmark_m6 benchmark_partitioned_6  (cost=4.47..16.05 rows=3 width=14) (never executed)
+                          Recheck Cond: ((tenant_id = 25) AND (event_date >= (('2026-04-15'::date + i.i) - 6)) AND (event_date <= ('2026-04-15'::date + i.i)))
+                          ->  Bitmap Index Scan on benchmark_m6_tenant_id_event_date_cost_usd_latency_ms_idx  (cost=0.00..4.46 rows=3 width=0) (never executed)
+                                Index Cond: ((tenant_id = 25) AND (event_date >= (('2026-04-15'::date + i.i) - 6)) AND (event_date <= ('2026-04-15'::date + i.i)))
+Planning:
+  Buffers: local hit=6
+Planning Time: 0.160 ms
+Execution Time: 2.677 ms

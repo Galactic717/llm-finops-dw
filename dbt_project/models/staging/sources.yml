@@ -1,0 +1,8 @@
+version: 2
+sources:
+  - name: bronze
+    schema: raw
+    tables:
+      - name: events
+      - name: prices
+      - name: scores

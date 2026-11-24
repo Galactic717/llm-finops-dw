@@ -1,0 +1,15 @@
+Sort  (cost=941105.69..941105.76 rows=30 width=68) (actual time=1102.622..1102.624 rows=30 loops=1)
+  Sort Key: (('2026-04-15'::date + i.i))
+  Sort Method: quicksort  Memory: 26kB
+  Buffers: local read=191100
+  ->  Nested Loop  (cost=31370.13..941104.95 rows=30 width=68) (actual time=36.861..1102.572 rows=30 loops=1)
+        Buffers: local read=191100
+        ->  Function Scan on generate_series i  (cost=0.00..0.30 rows=30 width=4) (actual time=0.003..0.023 rows=30 loops=1)
+        ->  Aggregate  (cost=31370.12..31370.14 rows=1 width=64) (actual time=36.743..36.743 rows=1 loops=30)
+              Buffers: local read=191100
+              ->  Seq Scan on benchmark_heap  (cost=0.00..31370.00 rows=24 width=14) (actual time=23.003..36.693 rows=161 loops=30)
+                    Filter: ((tenant_id = 25) AND (event_date <= ('2026-04-15'::date + i.i)) AND (event_date >= (('2026-04-15'::date + i.i) - 6)))
+                    Rows Removed by Filter: 999839
+                    Buffers: local read=191100
+Planning Time: 0.084 ms
+Execution Time: 1102.662 ms

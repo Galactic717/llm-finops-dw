@@ -1,0 +1,11 @@
+relationship Requests-Calendar
+	fromColumn: Requests.Date
+	toColumn: Calendar.Date
+
+relationship Requests-Tenants
+	fromColumn: Requests.Tenant
+	toColumn: Tenants.Tenant
+
+relationship Requests-Models
+	fromColumn: Requests.Model
+	toColumn: Models.Model
