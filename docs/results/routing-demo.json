@@ -1,0 +1,44 @@
+{
+  "experiment": "routing-demo-42",
+  "data_kind": "synthetic",
+  "ab": {
+    "arm_sizes": {
+      "all_cloud": 10807,
+      "hybrid": 10793
+    },
+    "srm_p": 0.9241099541143253,
+    "macro_f1": {
+      "all_cloud": 0.942322990570433,
+      "hybrid": 0.9403878486688915
+    },
+    "macro_f1_delta": -0.0019351419015415372,
+    "macro_f1_delta_ci95": [
+      -0.008398033153605221,
+      0.004757581251864093
+    ],
+    "noninferiority_margin": -0.015,
+    "noninferiority_supported": true,
+    "cost_savings": 0.7266793497136732,
+    "cost_savings_ci95": [
+      0.7174388067011704,
+      0.7360503761443299
+    ],
+    "cost_welch_p_secondary": 0.0,
+    "success_latency_mwu_p_secondary": 0.0,
+    "success_latency_p95_ms": {
+      "all_cloud": 2864.1623999999997,
+      "hybrid": 2701.0850999999993
+    },
+    "pilot_n_per_arm_at_80pct_power_assuming_equal_f1": 4536,
+    "bootstrap_replicates": 1000
+  },
+  "ml": {
+    "train_last_day": "2026-11-06",
+    "test_first_day": "2026-11-07",
+    "test_last_day": "2026-11-24",
+    "train_groups": 535,
+    "test_groups": 137,
+    "model_mae_ms": 302.4432943608,
+    "last_observation_mae_ms": 297.6427846715329
+  }
+}
