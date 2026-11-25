@@ -10,7 +10,7 @@ Find which workflows drive inference spend, trace each request to the tariff eff
 
 | Warehouse validation | PostgreSQL benchmark | Routing simulation |
 | --- | --- | --- |
-| **22,010** reconciled facts | **1,122 ms → 2.11 ms** on one million rows | **72.67%** lower mean modeled cost |
+| **22,010** facts in local Delta | **1,122 ms → 2.11 ms** on one million rows | **72.67%** lower mean modeled cost |
 | [Source counts](docs/results/delta.json) | [Query, plans, and test conditions](sql/optimization_report.md) | [Quality, SRM, and confidence intervals](docs/results/routing-demo.json) |
 
 ![Metabase dashboard showing simulated spend, requests, p95 latency, and routing trade-offs](bi/screenshots/metabase-routing.jpg)
@@ -92,16 +92,16 @@ The exporter expects a running local Verstak PostgreSQL container. Use `-Contain
 
 | Check | Observed result |
 | --- | --- |
-| Event volume | 22,010 facts across PostgreSQL and local Delta for the same batch. 21,600 synthetic assignments, 348 VeriFine records, 38 Verstak workflow runs, and 24 live llama.cpp requests. |
+| Event volume | Local Delta processed 22,010 facts: 21,600 synthetic assignments, 348 Verifine records, 38 Verstak workflow runs, and 24 live llama.cpp requests. |
 | Public data collection | 461 OpenRouter model price observations and 1,200 Hugging Face benchmark values in the initial validation batch. |
 | Local inference | 24/24 HTTP probes completed, with median end-to-end latency of 22.7 ms on the existing VeriFine Qwen GGUF. |
 | Data quality | 56 dbt data tests passed on PostgreSQL, and all 16 SQL analyses executed. Replaying the same Bronze batch inserted zero rows. |
-| Airflow | The scheduled and manually triggered runs both completed all five tasks, including fresh public-data extraction and dbt tests. |
+| Airflow | The saved acceptance run shows all five tasks succeeding, including public-data extraction and dbt tests. |
 | PostgreSQL benchmark | 1,121.521 ms heap median and 2.110 ms composite-index median on one million synthetic rows. The plans and limitations are documented. |
 | Simulated routing | 72.67% lower mean scenario cost with a 95% bootstrap interval of 71.74% to 73.61%. Macro-F1 Δ was −0.19 pp with an interval of −0.84 to +0.48 pp. The lower bound cleared the −1.5 pp margin. SRM p was 0.924. |
 | p95 forecasting | 302.44 ms MAE versus 297.64 ms for the last-observation baseline over the chronological holdout. The baseline performed better. |
 
-The simulator sets tariffs and classification accuracy and uses the true class to generate fallback rates. The live inference smoke test and imported telemetry document real measurements for their respective sources. [Routing results](docs/results/routing-demo.json) · [Delta reconciliation](docs/results/delta.json)
+The simulator sets tariffs and classification accuracy and uses the true class to generate fallback rates. The live inference smoke test and imported telemetry document real measurements for their respective sources. [Routing results](docs/results/routing-demo.json) · [Delta fact counts](docs/results/delta.json)
 
 ## Explore the project
 
