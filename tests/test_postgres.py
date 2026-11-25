@@ -1,4 +1,5 @@
 import os
+from decimal import Decimal
 from pathlib import Path
 
 import pytest
@@ -30,6 +31,43 @@ def test_showcase_queries_execute_against_gold_schema():
         for path in paths:
             result = conn.execute(path.read_text(encoding="utf-8"))
             assert result.description, path
+
+
+def test_routing_metrics_require_complete_assignment_coverage():
+    from jinja2 import Template
+
+    from ingestion.warehouse import connect
+
+    model = Template(Path("dbt_project/models/marts/mart_ab_routing.sql").read_text())
+    routing_mart = model.render(ref=lambda name: f"pg_temp.{name}")
+    route_funnel = Path("sql/queries/08_route_funnel.sql").read_text().replace(
+        "gold.mart_ab_routing", "pg_temp.mart_ab_routing"
+    )
+    with connect() as conn:
+        conn.execute("""
+            CREATE TEMP VIEW fct_llm_runs AS
+            SELECT experiment_id, 'observed' AS data_kind, 'hybrid' AS arm,
+                   'ok' AS status, false AS fallback, ground_truth, prediction,
+                   cost_usd, 100.0::double precision AS latency_ms
+            FROM (VALUES
+                ('complete', 'yes', 'yes', 0.02), ('complete', 'yes', NULL, 0.00),
+                ('unknown-cost', 'yes', 'yes', 0.02), ('unknown-cost', 'yes', NULL, NULL),
+                ('unknown-label', 'yes', 'yes', 0.02), ('unknown-label', NULL, NULL, 0.00)
+            ) AS assignments(experiment_id, ground_truth, prediction, cost_usd)
+        """)
+        conn.execute(f"CREATE TEMP VIEW mart_ab_routing AS {routing_mart}")
+        rates = conn.execute("""
+            SELECT experiment_id, assigned, priced_runs, labels_available, mean_cost_usd
+            FROM pg_temp.mart_ab_routing ORDER BY experiment_id
+        """).fetchall()
+        funnel = conn.execute(route_funnel).fetchall()
+
+    assert rates == [
+        ("complete", 2, 2, 2, Decimal("0.01")),
+        ("unknown-cost", 2, 1, 2, None),
+        ("unknown-label", 2, 2, 1, Decimal("0.01")),
+    ]
+    assert [row[-1] for row in funnel] == [Decimal("0.5"), Decimal("0.5"), None]
 
 
 def test_excel_exports_financial_values_as_numbers(tmp_path):

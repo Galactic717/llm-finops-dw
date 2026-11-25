@@ -101,7 +101,7 @@ The exporter expects a running local Verstak PostgreSQL container. Use `-Contain
 | Simulated routing | 72.67% lower mean scenario cost with a 95% bootstrap interval of 71.74% to 73.61%. Macro-F1 Δ was −0.19 pp with an interval of −0.84 to +0.48 pp. The lower bound cleared the −1.5 pp margin. SRM p was 0.924. |
 | p95 forecasting | 302.44 ms MAE versus 297.64 ms for the last-observation baseline over the chronological holdout. The baseline performed better. |
 
-The routing result belongs to the simulated traffic and price assumptions. The live inference smoke test and imported telemetry document real measurements for their respective sources. [Routing results](docs/results/routing-demo.json) · [Delta reconciliation](docs/results/delta.json)
+The simulator sets tariffs and classification accuracy and uses the true class to generate fallback rates. The live inference smoke test and imported telemetry document real measurements for their respective sources. [Routing results](docs/results/routing-demo.json) · [Delta reconciliation](docs/results/delta.json)
 
 ## Explore the project
 
