@@ -29,7 +29,7 @@ This path needs Docker images and Python packages but makes no requests to prici
 
 ## Audit generated artifacts
 
-- `output/analysis` holds the executed HTML analysis and numerical output.
+- `output/analysis` holds `routing.json` and `p95_predictions.csv` from the routing analysis. The executed notebook HTML is a [release download](https://github.com/Galactic717/llm-finops-dw/releases/latest).
 - `output/bi` holds Excel and CSV exports from the local warehouse.
 - `bi/powerbi` holds the editable, synthetic-only Power BI source.
 - `output/delta` holds local Delta tables and `verification.json`.
